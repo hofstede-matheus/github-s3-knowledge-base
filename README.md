@@ -2,11 +2,11 @@
 
 Atualmente, temos agentes integrados a ferramentas de desenvolvimento que possibilitam usar o modo "Ask" para fazer perguntas à codebase e até explorar o histórico de commits para entender o porquê de certas mudanças terem sido implementadas.
 
-Nesse artigo, vou mostrar como criar o seu próprio agente para fazer perguntas a uma codebase que está em um repositório do GitHub.
+Nesse tutorial, vou mostrar como criar o seu próprio agente para fazer perguntas a uma codebase que está em um repositório do GitHub.
 
 ## Sincronizando o repositório do GitHub com S3
 
-Atualmente, das Data Sources disponíveis para knowledges bases do AWS Bedrock, o S3 é a mais adequada para esse caso de uso, pois integração com o GitHub ainda não está disponível. Dito isso, vamos sincronizar os arquivos do repositório com um bucket do S3 através de uma action do GitHub Actions.
+Atualmente, das **Data Sources** disponíveis para knowledges bases do **AWS Bedrock**, o **S3** é a mais adequada para esse caso de uso, pois integração com o GitHub ainda não está disponível. Dito isso, vamos sincronizar os arquivos do repositório com um bucket do S3 através de uma action do GitHub Actions.
 
 ```
 name: Sync to S3
@@ -59,13 +59,13 @@ This is an example project to show how to integrate a Github Repository with a A
 
 Uma knowledge base é um repositório centralizado de informações que os sistemas de IA usam para recuperar dados relevantes e gerar respostas precisas e contextualizadas.
 
-Para criar e conectar ao bucket S3, vá para Amazon Bedrock > Build > Knowledge Bases e clique em Create Knowledge Base with vector store (unstructured data).
+Para criar e conectar ao bucket **S3**, vá para **Amazon Bedrock > Build > Knowledge Bases** e clique em **Create Knowledge Base with vector store (unstructured data)**.
 
 Em Choose data source type, selecione Amazon S3.
 
-Configure o data source escolhendo o bucket S3. A Parsing strategy Amazon Bedrock default parser é suficiente para esse caso simples, já que não vamos usar imagens, PDFs e outros tipos de dados.
+Configure o data source escolhendo o bucket S3. O **Parsing strategy Amazon Bedrock default parser** é suficiente para esse caso simples, já que não vamos usar imagens, PDFs e outros tipos de dados.
 
-O Embeddings model fica a gosto do freguês, mas o Titan Embeddings G1 funcionou bem para mim quando preparava esse tutorial. Em Vector store, recomendo criar um novo vector store e usar o Amazon Open Search Serverless.
+O Embeddings model fica a gosto do freguês, mas o **Titan Embeddings G1** funcionou bem para mim quando preparava esse tutorial. Em **Vector store**, recomendo criar um novo vector store e usar o **Amazon Open Search Serverless**.
 
 Revise e crie a knowledge base.
 
@@ -78,7 +78,7 @@ Depois que a knowledge base estiver pronta (demora alguns minutos), ao selecion�
 
 ## Criando o agente e conectando-o à knowledge base
 
-Agora em Amazon Bedrock > Build > Agents e clique em Create Agent.
+Agora em Amazon **Bedrock > Build > Agents** e clique em **Create Agent**.
 
 Selecione um modelo, o Amazon Nova Micro (confirme se está disponível na sua região) funcionou bem nos meus testes e é relativamente barato. Adicione as instruções para o agente. Coloquei isso:
 
@@ -86,9 +86,9 @@ Selecione um modelo, o Amazon Nova Micro (confirme se está disponível na sua r
 You are an agent familiar with the repository (project) in your knowledge base. You will receive questions and must provide answers.
 ```
 
-Clique em Save para salvar as mudanças em Agent details.
+Clique em **Save** para salvar as mudanças em Agent details.
 
-Em Knowledge Bases, adicione a knowledge base que você acabou de criar. Opcionalmente, descreva a natureza dos dados em Knowledge Base instructions for Agent.
+Em **Knowledge Bases**, adicione a knowledge base que você acabou de criar. Opcionalmente, descreva a natureza dos dados em **Knowledge Base instructions for Agent**.
 
 ```
 This is a repository of a project.

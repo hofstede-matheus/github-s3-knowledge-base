@@ -1,12 +1,12 @@
 # github-s3-knowledge-base
 
-Atualmente, temos agentes integrados a ferramentas de desenvolvimento que possibilitam usar o modo "Ask" para fazer perguntas à codebase e até explorar o histórico de commits para entender o porquê de certas mudanças terem sido implementadas.
+Currently, we have agents integrated into development tools that enable us to use "Ask" mode to query the codebase and even explore commit history to understand why certain changes were implemented.
 
-Nesse tutorial, vou mostrar como criar o seu próprio agente para fazer perguntas a uma codebase que está em um repositório do GitHub.
+In this tutorial, I'll show you how to create your own agent to query a codebase that is in a GitHub repository.
 
-## Sincronizando o repositório do GitHub com S3
+## Syncing the GitHub repository with S3
 
-Atualmente, das **Data Sources** disponíveis para knowledges bases do **AWS Bedrock**, o **S3** é a mais adequada para esse caso de uso, pois integração com o GitHub ainda não está disponível. Dito isso, vamos sincronizar os arquivos do repositório com um bucket do S3 através de uma action do GitHub Actions.
+Currently, among the **Data Sources** available for **AWS Bedrock** knowledge bases, **S3** is the most suitable for this use case, as GitHub integration is not yet available. That said, let's synchronize the repository files with an S3 bucket through a GitHub Actions workflow.
 
 ```
 name: Sync to S3
@@ -33,9 +33,9 @@ jobs:
         aws s3 sync ./ s3://${{ secrets.AWS_S3_BUCKET }} --exclude ".git/*" --delete
 ```
 
-Após o próximo push na branch "main", os arquivos vão aparecer no bucket do S3 escolhido.
+After the next push to the "main" branch, the files will appear in the chosen S3 bucket.
 
-É importante mencionar que, para simplificar, estou usando chaves de acesso. No entanto, a maneira recomendada para manter a segurança nas GitHub Actions é usar OIDC. Ficaria algo assim:
+It's important to mention that, for simplicity, I'm using access keys. However, the recommended way to maintain security in GitHub Actions is to use OIDC. It would look like this:
 
 ```
 - name: Configure AWS Credentials
@@ -45,7 +45,7 @@ Após o próximo push na branch "main", os arquivos vão aparecer no bucket do S
     aws-region: us-east-1
 ```
 
-Além da action, deixei apenas um README.md com uma breve descrição do projeto:
+In addition to the action, I've included only a README.md with a brief description of the project:
 
 # github-s3-knowledge-base
 
@@ -53,50 +53,50 @@ Além da action, deixei apenas um README.md com uma breve descrição do projeto
 This is an example project to show how to integrate a Github Repository with a AWS Bedrock Agents and use the repository as a knowledge base via S3 sync.
 ```
 
-## Criando a knowledge base
+## Creating the knowledge base
 
-> Antes de tudo, faça o login com uma conta não-root no console da AWS. Além de não ser uma prática segura, a criação de uma knowledge base com uma conta root falhará.
+> First of all, log in with a non-root account in the AWS console. In addition to not being a secure practice, creating a knowledge base with a root account will fail.
 
-Uma knowledge base é um repositório centralizado de informações que os sistemas de IA usam para recuperar dados relevantes e gerar respostas precisas e contextualizadas.
+A knowledge base is a centralized repository of information that AI systems use to retrieve relevant data and generate accurate and contextualized responses.
 
-Para criar e conectar ao bucket **S3**, vá para **Amazon Bedrock > Build > Knowledge Bases** e clique em **Create Knowledge Base with vector store (unstructured data)**.
+To create and connect to the **S3** bucket, go to **Amazon Bedrock > Build > Knowledge Bases** and click on **Create Knowledge Base with vector store (unstructured data)**.
 
-Em Choose data source type, selecione Amazon S3.
+In Choose data source type, select Amazon S3.
 
-Configure o data source escolhendo o bucket S3. O **Parsing strategy Amazon Bedrock default parser** é suficiente para esse caso simples, já que não vamos usar imagens, PDFs e outros tipos de dados.
+Configure the data source by choosing the S3 bucket. The **Parsing strategy Amazon Bedrock default parser** is sufficient for this simple case, since we won't be using images, PDFs, and other data types.
 
-O Embeddings model fica a gosto do freguês, mas o **Titan Embeddings G1** funcionou bem para mim quando preparava esse tutorial. Em **Vector store**, recomendo criar um novo vector store e usar o **Amazon Open Search Serverless**.
+The Embeddings model is up to you, but **Titan Embeddings G1** worked well for me when preparing this tutorial. In **Vector store**, I recommend creating a new vector store and using **Amazon Open Search Serverless**.
 
-Revise e crie a knowledge base.
+Review and create the knowledge base.
 
 Minimize image
 Edit image
 Delete image
 
 Add a caption (optional)
-Depois que a knowledge base estiver pronta (demora alguns minutos), ao selecioná-la na lista, verá que a coluna Last sync time está em branco. Selecione-a e clique em Sync. Caso contrário, o agente não terá o contexto dela.
+After the knowledge base is ready (takes a few minutes), when you select it from the list, you'll see that the Last sync time column is blank. Select it and click Sync. Otherwise, the agent won't have its context.
 
-## Criando o agente e conectando-o à knowledge base
+## Creating the agent and connecting it to the knowledge base
 
-Agora em Amazon **Bedrock > Build > Agents** e clique em **Create Agent**.
+Now go to Amazon **Bedrock > Build > Agents** and click **Create Agent**.
 
-Selecione um modelo, o Amazon Nova Micro (confirme se está disponível na sua região) funcionou bem nos meus testes e é relativamente barato. Adicione as instruções para o agente. Coloquei isso:
+Select a model; Amazon Nova Micro (confirm if it's available in your region) worked well in my tests and is relatively inexpensive. Add the instructions for the agent. I used this:
 
 ```
 You are an agent familiar with the repository (project) in your knowledge base. You will receive questions and must provide answers.
 ```
 
-Clique em **Save** para salvar as mudanças em Agent details.
+Click **Save** to save the changes in Agent details.
 
-Em **Knowledge Bases**, adicione a knowledge base que você acabou de criar. Opcionalmente, descreva a natureza dos dados em **Knowledge Base instructions for Agent**.
+In **Knowledge Bases**, add the knowledge base you just created. Optionally, describe the nature of the data in **Knowledge Base instructions for Agent**.
 
 ```
 This is a repository of a project.
 ```
 
-Com a knowledge base conectada, salve as as mudanças novamente e clique em Prepare para "compilar" o agente com o fundation model, instruções, knowledge base e etc.
+With the knowledge base connected, save the changes again and click Prepare to "compile" the agent with the foundation model, instructions, knowledge base, etc.
 
-Clicando em Test, um chat abrirá e você poderá mandar mensagens para essse agente. Tente algo si simples, como:
+By clicking Test, a chat will open and you can send messages to this agent. Try something simple, like:
 
 ```
 Q: What is this project about?
@@ -115,16 +115,16 @@ A: The GitHub action connects to AWS by using AWS credentials stored as secrets 
 To improve this setup, consider the following suggestions:- Use IAM roles for Amazon EC2 instead of AWS access keys for a more secure approach.- Implement a review process for changes to the AWS credentials and repository secrets.- Consider using a more granular approach for syncing files to S3, such as syncing only specific directories or files instead of the entire repository.
 ```
 
-O mais interessante é que ele referencia o arquivo no S3 (s3://github-s3-knowledge-base/README.md) como fonte.
+The most interesting thing is that it references the file in S3 (s3://github-s3-knowledge-base/README.md) as the source.
 
-## Mas não já temos ferramentas para isso?
+## But don't we already have tools for this?
 
-A pergunta que não quer calar: Não é mais fácil usar o Cursor ou o Copilot para fazer perguntas a uma codebase?
+The burning question: Isn't it easier to use Cursor or Copilot to query a codebase?
 
-Sim, é mais prático no momento de desenvolvimento, mas ao usar knowledge bases, você está usando RAG Semântico, que é significativamente mais eficiente em custo, velocidade e precisão do que enviar todo o contexto.
+Yes, it's more practical during development, but by using knowledge bases, you're using Semantic RAG, which is significantly more efficient in cost, speed, and accuracy than sending the entire context.
 
-Para codebases menos voláteis e situações onde o agente não precisa editar código, o RAG Semântico é a melhor opção.
+For less volatile codebases and situations where the agent doesn't need to edit code, Semantic RAG is the best option.
 
-## Como ir além?
+## How to go further?
 
-Com licença poética para este caso de uso extremamente simples, o céu é o limite do que pode ser feito com essas ferramentas. Até mesmo no caso do "Stack Overflow pessoal", ele pode ser utilizado para o onboarding de novos desenvolvedores, wikis e documentações dinâmicas de projetos.
+With poetic license for this extremely simple use case, the sky's the limit for what can be done with these tools. Even in the case of a "personal Stack Overflow," it can be used for onboarding new developers, wikis, and dynamic project documentation.
